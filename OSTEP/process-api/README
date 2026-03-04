@@ -1,0 +1,25 @@
+Process API Lab 01 : fork()를 이용한 프로세스 메모리 격리 확인
+1. 실험 목적
+fork()를 통해 생성된 자식 프로세스가 부모의 주소 공간을 공유하는지, 아니면 독립적인 공간을 가지는지 확인한다.
+2. 구현 세부 사항 (api1.c)
+정수형 변수 x를 100으로 초기화한 후 fork()를 호출한다.
+자식 프로세스: 자신의 x 값을 200으로 수정한다.
+부모 프로세스: wait(NULL)로 자식의 종료를 기다린 후, 자신의 x 값을 300으로 수정한다.
+3. 결과 분석 및 결론
+자식 프로세스에서 x를 변경해도 부모의 x 값(100)에는 영향을 주지 않았다.
+이는 fork()시 자식 프로세스를 위해 별도의 주소 공간이 생성됨을 의미하며, 
+운영체제의 핵심인 프로세스 격리(Process Isolation) 원리를 보여준다.
+
+(English Version)
+Process API Lab 01: Verifying Memory Isolation via fork()
+1. Objective
+To determine whether a child process created by fork() shares the same address space with its parent or maintains
+its own independent copy.
+2. Implementation Details (api1.c)
+Initialize an integer variable x to 100 and call fork().
+Child Process: Modifies its copy of x to 200.
+Parent Process: Waits for the child to finish, then modifies its own x to 300.
+3. Execution Results & Conclusion
+Changes in the child process did not reflect in the parent's variable.
+This confirms that fork() creates a separate address space for the child,
+demonstrating the fundamental OS principle of Process Isolation.
