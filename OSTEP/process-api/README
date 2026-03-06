@@ -51,7 +51,6 @@ printf("hello!\n")을 실행한다.
 printf()는 물리적인 화면이 아닌 FD 1번이라는 추상화된 통로로 데이터를 보낸다는 것을 확인했다.
 쉘(Shell)의 redirection(>) 연산자가 내부적으로 close()와 open() 시스템 콜의 조합을 통해 어떻게 동작하는지 그 하부 메커니즘을 이해했다.
 
-
 0.References
 Operating Systems: Three Easy Pieces
 Chapter 5: Process API
