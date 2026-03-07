@@ -1,47 +1,49 @@
-//두개의 자식프로세스를 생성하여 pipe()시스템콜을 사용하여 한 자식의 표준출력(stdout,fd1) 을 다른 자식의 입력으로 연결하는 프로그램 작성.
+// 두 개의 자식 프로세스를 생성하여 pipe() 시스템콜을 사용해
+// 자식1의 표준출력(stdout, fd 1)을 자식2의 표준입력(stdin, fd 0)으로 연결하는 프로그램
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/wait.h>
 
-int main(){
+int main() {
     int rc_pipe[2];
     pipe(rc_pipe);
-// child1(입력) process 생성 및 dup2를 활용한 표준입력 파일 변경
-    int rc[2];
-    rc[0] = fork();
 
-    if(rc[0] < 0){
-        fprintf(stderr,"fork failed.\n");
-    } else if (rc[0] == 0){
+    int rc1 = fork();
+    if (rc1 < 0) {
+        fprintf(stderr, "fork failed.\n");
+        exit(1);
+    } else if (rc1 == 0) {
         close(rc_pipe[0]);
-        dup2(rc_pipe[1], 1);
+        dup2(rc_pipe[1], 1); //stdout -> pipe write
         close(rc_pipe[1]);
+
         printf("hello. I'm child 1.\n");
         exit(0);
-    } else {
-        wait(NULL);
     }
-// child2(출력) process 생성 및 dup2를 활용한 표준출력 파일 변경
-    rc[1] = fork();
 
-    if (rc[1] < 0){
-        fprintf(stderr,"fork failed.\n");
-    } else if (rc[1] == 0){
+    int rc2 = fork();
+    if (rc2 < 0) {
+        fprintf(stderr, "fork failed.\n");
+        exit(1);
+    } else if (rc2 == 0) {
         close(rc_pipe[1]);
-        char buf[100];
-        int len = read(0, buf, sizeof(buf)-1);
-      //읽기 마지막을 알 수 있도록 NULL 을 읽어들인 문자열 마지막 배열에 넣어준다.
-        buf[len] = '\0';
-        printf("child 2 received : %s", buf);
-        exit(0);
-    } else {
+        dup2(rc_pipe[0], 0); //stdin <- pipe read
         close(rc_pipe[0]);
-        close(rc_pipe[1]);
 
-        wait(NULL);
+        char buf[100];
+        int len = read(0, buf, sizeof(buf) - 1);
+        buf[len] = '\0';
+        
+        printf("child 2 received: %s", buf);
+        exit(0);
     }
+
+    close(rc_pipe[0]);
+    close(rc_pipe[1]);
+    wait(NULL);
+    wait(NULL);
+
     return 0;
 }
-
