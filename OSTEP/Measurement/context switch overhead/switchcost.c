@@ -1,9 +1,10 @@
-// context switch overhead 비용을 
+// context switch overhead 비용을 측정해본다.
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <sched.h> //CPU 고정 관련 헤더
 
 int main(int argc, char *argv[]){
 
@@ -17,6 +18,15 @@ int main(int argc, char *argv[]){
     pipe(p1);
     pipe(p2);
 
+    //부모와 자식이 같은 CPU 코어에서만 돌도록 고정한다.
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    CPU_SET(0, &set);
+    if (sched_setaffinity(getpid(), sizeof(cpu_set_t), &set) == -1) {
+        fprintf(stderr,"sched_setaffinity");
+        exit(1);
+    }   
+    
     pid_t rc = fork();
 
     if (rc < 0) {
